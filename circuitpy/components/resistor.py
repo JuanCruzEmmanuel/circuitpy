@@ -5,7 +5,7 @@ from .base import * #Importo todo los elementos de base
 class Resistor(Component): #Importo las caracteristicas de Component
     
     
-    def __init__(self, name, n1, n2, resistance, alpha=0.0039, t0=20.0, pot_max = 0.25):
+    def __init__(self, name, n1, n2, resistance, alpha=0.0039, t0=20.0, pot_max = 0.25, Cth = 5.0):
         """
         Modelado de resistencia
         
@@ -21,6 +21,7 @@ class Resistor(Component): #Importo las caracteristicas de Component
         self.t0 = t0
         self.Tt = t0 #temperatura en tiempo inicia igual que la que se estima "nominal"
         self.pot_max = pot_max
+        self.Cth = Cth
         self.burned = False #variable que va a controlar si el componente se quema, tal vez es mejor ponerle failure
         
     def update_temperature(self,current=0.000001,t = 1.0):
@@ -31,7 +32,8 @@ class Resistor(Component): #Importo las caracteristicas de Component
         """
         #Pot = I2R
         P = (current ** 2) * self.R
-        dT = P * t # E/T = Pot; E = P*T con E: Energia
+        dE = P * t # E/T = Pot; E = P*T con E: Energia
+        dT = dE / self.Cth
         #Supongo que voy a tener que poner info relacionada a la TJ, TA y RJA
         self.Tt = self.t0 + dT
         self.R = self.R0 * (1+ self.alpha * (self.Tt - self.t0))
@@ -43,6 +45,11 @@ class Resistor(Component): #Importo las caracteristicas de Component
             print(f"Temperature= {self.Tt}")
         
     def stamp(self, G, I, node_map):
+        
+        if self.burned:
+            #Resistencia infinita o corto circuito?
+            return
+        
         g = 1.0/self.R #la conductancia es la inversa de la resistencia
         n1 = node_map[self.n1]
         n2 = node_map[self.n2]

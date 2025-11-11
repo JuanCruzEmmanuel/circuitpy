@@ -5,7 +5,8 @@ from circuitpy.components.voltage_source import VoltageSource
 ckt = Circuit()
 ckt.add(VoltageSource("V1", "0", "1", 10)) #Nombre, nodo 1, nodo 2, valor V{dc}
 ckt.add(Resistor("R1", "1", "2", 5))  #Nombre, nodo 1, nodo 2 y valor de resistencia
-ckt.add(Resistor("R2", "2", "0", 5))
+ckt.add(Resistor("R2", "2", "0", 10))
+ckt.add(Resistor("R3","2","0",10))
 
 """
 
